@@ -16,6 +16,11 @@ const userModel = new mongoose.Schema(
       type: String,
       required: true,
     },
+    dp: {
+      type: String,
+      default:
+        "https://366icons.com/media/01/profile-avatar-account-icon-16699.png",
+    },
   },
   {
     timestamps: true,

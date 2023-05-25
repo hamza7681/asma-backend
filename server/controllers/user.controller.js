@@ -6,7 +6,10 @@ const generateToken = require("../utils/generateToken");
 const userCtrl = {
   register: async (req, res) => {
     try {
-      const { username, email, password } = req.body;
+      const data = req.body.userData;
+      const newData = JSON.parse(data);
+      const { username, email, password } = newData;
+      const file = req.file;
       if (!username || !email || !password) {
         return res
           .status(StatusCodes.BAD_REQUEST)
@@ -27,6 +30,7 @@ const userCtrl = {
             username,
             email,
             password: hashedPassword,
+            dp: "http://localhost:5000/" + file.path,
           });
           await newUser.save();
           return res
@@ -87,6 +91,35 @@ const userCtrl = {
       return res
         .status(StatusCodes.OK)
         .json({ msg: "User update successfully" });
+    } catch (error) {
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(error.message);
+    }
+  },
+  getAllUsers: async (req, res) => {
+    try {
+      const findUsers = await User.find().select("-password");
+      if (findUsers.length !== 0) {
+        return res.status(StatusCodes.OK).json(findUsers);
+      } else {
+        return res
+          .status(StatusCodes.NOT_FOUND)
+          .json({ msg: "No Users found!" });
+      }
+    } catch (error) {
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(error.message);
+    }
+  },
+  getUserById: async (req, res) => {
+    try {
+      const id = req.params.userId;
+      const findUser = await User.findById(id).select("-password");
+      if (findUser) {
+        return res.status(StatusCodes.OK).json(findUser);
+      } else {
+        return res
+          .status(StatusCodes.NOT_FOUND)
+          .json({ msg: "No user found!" });
+      }
     } catch (error) {
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(error.message);
     }
